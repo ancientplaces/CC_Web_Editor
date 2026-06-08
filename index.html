@@ -927,11 +927,31 @@ function initGlobal() {
   document.getElementById('btn-max').addEventListener('click', () => {
     knobMap.forEach((s, cc) => { setKnob(s, 127); sendCC(cc, 127); });
   });
-  // Randomise all knobs
+  // Randomise all knobs AND module selectors
   document.getElementById('btn-rand').addEventListener('click', () => {
+    // 1. Randomise every knob
     knobMap.forEach((s, cc) => {
       const v = Math.floor(Math.random() * 128);
       setKnob(s, v); sendCC(cc, v);
+    });
+
+    // 2. Randomly pick an effect for each module selector
+    document.querySelectorAll('.module-selector').forEach(sel => {
+      const cc     = parseInt(sel.dataset.cc);
+      const labels = [...sel.querySelectorAll('label')];
+      if (!labels.length) return;
+
+      // Pick a random option (including Off at index 0)
+      const chosen = labels[Math.floor(Math.random() * labels.length)];
+      const radio  = chosen.querySelector('input');
+
+      // Update UI state
+      labels.forEach(l => l.classList.remove('sel'));
+      chosen.classList.add('sel');
+      radio.checked = true;
+
+      // Fire the CC
+      sendCC(cc, parseInt(radio.value));
     });
   });
 }
